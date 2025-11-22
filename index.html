@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>幸运抽奖活动</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: '微软雅黑', sans-serif; }
+        body { background: #f5f5f5; padding: 50px 0; }
+        .lottery-box { max-width: 600px; margin: 0 auto; background: #fff; padding: 40px; border-radius: 12px; box-shadow: 0 0 20px rgba(0,0,0,0.1); }
+        .lottery-title { text-align: center; font-size: 28px; color: #e63946; margin-bottom: 30px; font-weight: bold; }
+        .prize-list { display: flex; justify-content: space-between; margin-bottom: 40px; flex-wrap: wrap; gap: 20px; }
+        .prize-item { flex: 1; min-width: 160px; text-align: center; padding: 20px; border-radius: 8px; background: #f8f9fa; }
+        .prize-level { font-size: 18px; font-weight: bold; margin-bottom: 10px; }
+        .prize-1 .prize-level { color: #ffd700; }
+        .prize-2 .prize-level { color: #c0c0c0; }
+        .prize-3 .prize-level { color: #cd7f32; }
+        .prize-name { font-size: 16px; color: #333; }
+        .lottery-btn { display: block; width: 200px; height: 60px; line-height: 60px; text-align: center; margin: 0 auto; background: #e63946; color: #fff; border: none; border-radius: 30px; font-size: 20px; cursor: pointer; transition: background 0.3s; }
+        .lottery-btn:disabled { background: #ccc; cursor: not-allowed; }
+        .result-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 999; }
+        .modal-content { background: #fff; padding: 40px; border-radius: 12px; text-align: center; width: 90%; max-width: 400px; }
+        .result-icon { font-size: 60px; margin-bottom: 20px; }
+        .win-icon { color: #e63946; }
+        .lose-icon { color: #666; }
+        .result-text { font-size: 22px; margin-bottom: 30px; color: #333; }
+        .close-btn { padding: 10px 30px; background: #e63946; color: #fff; border: none; border-radius: 20px; font-size: 16px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="lottery-box">
+        <h1 class="lottery-title">幸运抽奖 好礼相送</h1>
+        <div class="prize-list">
+            <div class="prize-item prize-1">
+                <div class="prize-level">一等奖</div>
+                <div class="prize-name">品牌智能手机</div>
+            </div>
+            <div class="prize-item prize-2">
+                <div class="prize-level">二等奖</div>
+                <div class="prize-name">无线蓝牙耳机</div>
+            </div>
+            <div class="prize-item prize-3">
+                <div class="prize-level">三等奖</div>
+                <div class="prize-name">定制保温杯</div>
+            </div>
+        </div>
+        <button class="lottery-btn" id="lotteryBtn">立即抽奖</button>
+    </div>
+
+    <div class="result-modal" id="resultModal">
+        <div class="modal-content">
+            <div class="result-icon" id="resultIcon">🎉</div>
+            <div class="result-text" id="resultText">恭喜获得一等奖！</div>
+            <button class="close-btn" id="closeBtn">确定</button>
+        </div>
+    </div>
+
+    <script>
+        // 检测是否已参与过抽奖（localStorage存储状态）
+        const hasJoined = localStorage.getItem('lotteryJoined');
+        const lotteryBtn = document.getElementById('lotteryBtn');
+        const resultModal = document.getElementById('resultModal');
+        const resultIcon = document.getElementById('resultIcon');
+        const resultText = document.getElementById('resultText');
+        const closeBtn = document.getElementById('closeBtn');
+
+        // 初始化按钮状态
+        if (hasJoined) lotteryBtn.disabled = true;
+
+        // 奖品配置（含中奖概率，总和100）
+        const prizes = [
+            { level: '一等奖', name: '品牌智能手机', icon: '🎉', probability: 5 },
+            { level: '二等奖', name: '无线蓝牙耳机', icon: '🎁', probability: 15 },
+            { level: '三等奖', name: '定制保温杯', icon: '🥤', probability: 30 },
+            { level: '未中奖', name: '谢谢参与', icon: '😕', probability: 50 }
+        ];
+
+        // 抽奖逻辑
+        lotteryBtn.addEventListener('click', () => {
+            // 标记已参与，禁用按钮
+            localStorage.setItem('lotteryJoined', 'true');
+            lotteryBtn.disabled = true;
+            
+            // 随机生成中奖结果
+            const randomNum = Math.random() * 100;
+            let currentPrize;
+            let sum = 0;
+            for (let p of prizes) {
+                sum += p.probability;
+                if (randomNum <= sum) {
+                    currentPrize = p;
+                    break;
+                }
+            }
+
+            // 显示结果弹窗
+            resultIcon.textContent = currentPrize.icon;
+            resultText.textContent = currentPrize.level === '未中奖' ? '很遗憾，未中奖，谢谢参与～' : `恭喜获得${currentPrize.level}：${currentPrize.name}！`;
+            resultModal.style.display = 'flex';
+        });
+
+        // 关闭弹窗
+        closeBtn.addEventListener('click', () => {
+            resultModal.style.display = 'n
